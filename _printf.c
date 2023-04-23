@@ -26,13 +26,19 @@ int _printf(const char *format, ...)
 				case 's':
 				rtn_val += printf("%s", va_arg(args, char*));
 				break;
+				case 'd':
+				rtn_val += printf("%d", va_arg(args, int));
+				break;
+				case 'i':
+				rtn_val += printf("%d", va_arg(args, unsigned int));
+				break;
 				case '%':
 				putchar('%');
 				rtn_val++;
 				break;
 				default:
 					printf("Invalid format specifier: %c", *format);
-				return -1;
+				return (-1);
 			}
 		}
 		else if (*format == '\\')
@@ -42,17 +48,17 @@ int _printf(const char *format, ...)
 			{
 				case 'n':
 					putchar('\n');
-					rtn_val ++;
+					rtn_val++;
 					break;
 				case 't':
 					putchar('\t');
 					rtn_val++;
 					break;
 				default:
-					putchar('\\');
-					putchar(*format);
-					rtn_val += 2;
-					break;
+				putchar('\\');
+				putchar(*format);
+				rtn_val += 2;
+				break;
 			}
 		}
 		else
