@@ -1,73 +1,58 @@
 #include "main.h"
 #include <stdarg.h>
 #include <stdio.h>
+void print_buffer(char buffer[], int *buff_index);
 /**
  * _printf - returns output per format stdout
  * format: what to print
  *
- * Return: int value
+ * Return: formatted output
  */
 int _printf(const char *format, ...)
 {
+	int i, output =0, rtn_val = 0, buff_index = 0;
+	int flags, width,precision, size;
+	char buffer[BUFF_ALLOC];
 	va_list args;
-	int rtn_val;
 
+	if (format == NULL)
+		return(-1);
 	va_start(args, format);
-	while (*format != '\0')
+	for (i = 0; format && format[i] != '\0'; i++)
 	{
-		if (*format == '%')
+		if (format[i] != '%')
 		{
-			format++;
-			switch (*format)
-			{
-				case 'c':
-				rtn_val += printf("%c", va_arg(args, int));
-				break;
-				case 's':
-				rtn_val += printf("%s", va_arg(args, char*));
-				break;
-				case 'd':
-				rtn_val += printf("%d", va_arg(args, int));
-				break;
-				case 'i':
-				rtn_val += printf("%d", va_arg(args, unsigned int));
-				break;
-				case '%':
-				putchar('%');
-				rtn_val++;
-				break;
-				default:
-					printf("Invalid format specifier: %c", *format);
-				return (-1);
-			}
-		}
-		else if (*format == '\\')
-		{
-			format++;
-			switch (*format)
-			{
-				case 'n':
-					putchar('\n');
-					rtn_val++;
-					break;
-				case 't':
-					putchar('\t');
-					rtn_val++;
-					break;
-				default:
-				putchar('\\');
-				putchar(*format);
-				rtn_val += 2;
-				break;
-			}
+			buffer[buff_index++] = format[i];
+			if (buff_index == BUFF_ALLOC)
+				print_buffer(buffer, &buff_index);
+			rtn_val++;
 		}
 		else
 		{
-			putchar(*format);
-			rtn_val++;
+			print_buffer(buffer, &buff_index);
+			flags = get_flags(format, &i);
+			width = get_width(format, &i, args);
+			precision = get_precision(format, &i, args);
+			size = get_size(format, &i);
+			++i;
+			output = handle_print(format, &i, args,buffer, flags, width, precision,size);
+			if (output == -1)
+				return(-1);
+			rtn_val += output;
 		}
-		format++;
 	}
+	print_buffer(buffer, &buff_index);
 	va_end(args);
-	return (rtn_val);
+	return(rtn_val);
+}
+/**
+ * print_buffer - prints out buffer
+ * @buffer: char arrary[buff_index]
+ * @buff_index: length
+ */
+void print_buffer(char buffer[], int *buff_index)
+{
+	if(*buff_index > 0)
+		write(1, &buffer[0], *buff_index);
+	*buff_index = 0;
 }
